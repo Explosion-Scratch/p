@@ -279,7 +279,7 @@ function generateInitScript(shell) {
 # Add this to your .zshrc
 ${NAME}() {
   local output
-  output="$(SD_SHELL_INTEGRATION=1 command ${NAME} "$@")"
+  output="$(${NAME_UPC}_SHELL_INTEGRATION=1 command ${NAME} "$@")"
   if [[ $output == ${CD_COMMAND_PREFIX}* ]]; then
     cd "\${output#${CD_COMMAND_PREFIX}}"
   else
@@ -292,7 +292,7 @@ ${NAME}() {
 # Add this to your .bashrc
 ${NAME}() {
   local output
-  output="$(SD_SHELL_INTEGRATION=1 command ${NAME} "$@")"
+  output="$(${NAME_UPC}_SHELL_INTEGRATION=1 command ${NAME} "$@")"
   if [[ $output == ${CD_COMMAND_PREFIX}* ]]; then
     cd "\${output#${CD_COMMAND_PREFIX}}"
   else
@@ -304,7 +304,7 @@ ${NAME}() {
       return `
 # Add this to your config.fish
 function ${NAME}
-  set output (env SD_SHELL_INTEGRATION=1 command ${NAME} $argv)
+  set output (env ${NAME_UPC}_SHELL_INTEGRATION=1 command ${NAME} $argv)
   if string match -q "${CD_COMMAND_PREFIX}*" -- \$output
     cd (string replace "${CD_COMMAND_PREFIX}" "" -- \$output)
   else
