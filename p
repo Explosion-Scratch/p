@@ -8,6 +8,8 @@ const ignore = require("ignore");
 const NAME = "p";
 const NAME_UPC = NAME.toUpperCase();
 
+let DEFAULT_OPTS = '';
+
 const DEFAULT_IGNORE = `
 *.app
 node_modules
@@ -279,7 +281,7 @@ function generateInitScript(shell) {
 # Add this to your .zshrc
 ${NAME}() {
   local output
-  output="$(${NAME_UPC}_SHELL_INTEGRATION=1 command ${NAME} "$@")"
+  output="$(${NAME_UPC}_SHELL_INTEGRATION=1 command ${DEFAULT_OPTS} ${NAME} "$@")"
   if [[ $output == ${CD_COMMAND_PREFIX}* ]]; then
     cd "\${output#${CD_COMMAND_PREFIX}}"
   else
@@ -292,7 +294,7 @@ ${NAME}() {
 # Add this to your .bashrc
 ${NAME}() {
   local output
-  output="$(${NAME_UPC}_SHELL_INTEGRATION=1 command ${NAME} "$@")"
+  output="$(${NAME_UPC}_SHELL_INTEGRATION=1 command ${DEFAULT_OPTS} ${NAME} "$@")"
   if [[ $output == ${CD_COMMAND_PREFIX}* ]]; then
     cd "\${output#${CD_COMMAND_PREFIX}}"
   else
@@ -304,7 +306,7 @@ ${NAME}() {
       return `
 # Add this to your config.fish
 function ${NAME}
-  set output (env ${NAME_UPC}_SHELL_INTEGRATION=1 command ${NAME} $argv)
+  set output (env ${NAME_UPC}_SHELL_INTEGRATION=1 command ${DEFAULT_OPTS} ${NAME} $argv)
   if string match -q "${CD_COMMAND_PREFIX}*" -- \$output
     cd (string replace "${CD_COMMAND_PREFIX}" "" -- \$output)
   else
@@ -388,9 +390,10 @@ Options:
   --completion [shell]      Generate shell completion script (bash, zsh, fish)
   --init [shell]            Generate shell initialization script (bash, zsh, fish)
   -t, --threshold <number>  Set minimum score threshold (default: 0)
-  -v, --verbose            Enable verbose logging
+  -v, --verbose             Enable verbose logging
   --more                    Show all matches without filtering
   --first                   Always go to the first match
+  --default-opts <options>  Set default options for ${NAME} for shell init
 
 Examples:
   ${NAME} proj          # Fuzzy search for directories matching 'proj'
@@ -458,6 +461,12 @@ async function main() {
   if (args.includes("-h") || args.includes("--help")) {
     console.log(HELP_TEXT);
     process.exit(0);
+  }
+
+  const defaultOptsIndex = args.findIndex((arg) => arg === "--default-opts" || arg === "-do");
+  if (defaultOptsIndex !== -1) {
+    DEFAULT_OPTS = args[defaultOptsIndex + 1];
+    args.splice(defaultOptsIndex, 2);
   }
 
   const initIndex = args.findIndex((arg) => arg === "--init");
