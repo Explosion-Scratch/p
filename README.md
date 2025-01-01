@@ -1,4 +1,5 @@
 # p (Pop) - A Smarter `cd` Command
+(Screen recording coming soon, for now just blindly run the code please)
 
 `p` is a smarter `cd` command. It searches recursively and uses fzf when needed. See below for details.
 
