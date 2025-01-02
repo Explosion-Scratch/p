@@ -26,7 +26,7 @@ Packages
 
 function log(message) {
   if (process.env.DEBUG === "true") {
-    console.log(message);
+    console.log(`\x1b[34m${message}\x1b[0m`);
   }
 }
 
@@ -83,13 +83,11 @@ function fuzzyMatch(str, pattern) {
       if (strIdx === 0 || ["-", "_", "."].includes(str[strIdx - 1])) {
         score += 10;
         reasons.push({ why: "Start bonus", amount: 10 });
-        _log("Applied start bonus +10");
       }
 
       if (str[strIdx] === pattern[patternIdx]) {
         score += 8;
         reasons.push({ why: "Case matching bonus", amount: 8 });
-        _log("Applied case matching bonus +8");
       }
 
       if (
@@ -103,7 +101,6 @@ function fuzzyMatch(str, pattern) {
           why: `Consecutive bonus`,
           amount: consecutive * MULTIPLIER,
         });
-        _log(`Applied consecutive bonus +${consecutive * MULTIPLIER}`);
       } else {
         consecutive = 0;
       }
@@ -127,14 +124,10 @@ function fuzzyMatch(str, pattern) {
 
   score += proximity;
   reasons.push({ why: "Proximity bonus", amount: proximity });
-  _log(`Applied proximity bonus +${proximity}`);
 
   const lengthPenalty = (str.length - pattern.length) * 0.5;
   score -= lengthPenalty;
   reasons.push({ why: "Length penalty", amount: -lengthPenalty });
-  _log(`Applied length penalty -${lengthPenalty}`);
-
-  _log(`Final score: ${score}`);
 
   return {
     matched: true,
@@ -386,21 +379,21 @@ Usage: ${NAME} [options] <directory-pattern>
 A fuzzy directory search and navigation tool.
 
 Options:
-  -h, --help                Show this help message
-  --completion [shell]      Generate shell completion script (bash, zsh, fish)
-  --init [shell]            Generate shell initialization script (bash, zsh, fish)
-  -t, --threshold <number>  Set minimum score threshold (default: 0)
-  -v, --verbose             Enable verbose logging
-  --more                    Show all matches without filtering
-  --first                   Always go to the first match
-  --default-opts <options>  Set default options for ${NAME} for shell init
+  \x1b[32m-h, --help\x1b[0m                Show this help message
+  \x1b[32m--completion [shell]\x1b[0m      Generate shell completion script (bash, zsh, fish)
+  \x1b[32m--init [shell]\x1b[0m            Generate shell initialization script (bash, zsh, fish)
+  \x1b[32m-t, --threshold <number>\x1b[0m  Set minimum score threshold (default: 0)
+  \x1b[32m-v, --verbose\x1b[0m             Enable verbose logging
+  \x1b[32m--more\x1b[0m                    Show all matches without filtering
+  \x1b[32m--first\x1b[0m                   Always go to the first match
+  \x1b[32m--default-opts <options>\x1b[0m  Set default options for ${NAME} for shell init
 
 Examples:
-  ${NAME} proj          # Fuzzy search for directories matching 'proj'
-  ${NAME} web/src       # Search for 'web' then 'src' within matches
-  ${NAME} --threshold 5 # Only show matches with score >= 5
-  ${NAME} --more        # Show all matches without filtering
-  ${NAME} --first       # Always go to the first match
+  \x1b[33m${NAME} proj\x1b[0m          # Fuzzy search for directories matching 'proj'
+  \x1b[33m${NAME} web/src\x1b[0m       # Search for 'web' then 'src' within matches
+  \x1b[33m${NAME} --threshold 5\x1b[0m # Only show matches with score >= 5
+  \x1b[33m${NAME} --more\x1b[0m        # Show all matches without filtering
+  \x1b[33m${NAME} --first\x1b[0m       # Always go to the first match
 
 Shell Integration:
   To enable directory changing, you must add shell integration to your RC file.
@@ -474,7 +467,7 @@ async function main() {
     const requestedShell = args[initIndex + 1] || getCurrentShell();
     if (!requestedShell || !SUPPORTED_SHELLS.includes(requestedShell)) {
       console.error(
-        `Please specify a supported shell: ${SUPPORTED_SHELLS.join(", ")}`,
+        `\x1b[31mPlease specify a supported shell: ${SUPPORTED_SHELLS.join(", ")}\x1b[0m`,
       );
       process.exit(1);
     }
@@ -482,7 +475,7 @@ async function main() {
       console.log(generateInitScript(requestedShell));
       process.exit(0);
     } catch (error) {
-      console.error(error.message);
+      console.error(`\x1b[31m${error.message}\x1b[0m`);
       process.exit(1);
     }
   }
@@ -492,7 +485,7 @@ async function main() {
     const requestedShell = args[completionIndex + 1] || getCurrentShell();
     if (!requestedShell || !SUPPORTED_SHELLS.includes(requestedShell)) {
       console.error(
-        `Please specify a supported shell: ${SUPPORTED_SHELLS.join(", ")}`,
+        `\x1b[31mPlease specify a supported shell: ${SUPPORTED_SHELLS.join(", ")}\x1b[0m`,
       );
       process.exit(1);
     }
@@ -500,7 +493,7 @@ async function main() {
       console.log(generateCompletion(requestedShell));
       process.exit(0);
     } catch (error) {
-      console.error(error.message);
+      console.error(`\x1b[31m${error.message}\x1b[0m`);
       process.exit(1);
     }
   }
@@ -511,7 +504,7 @@ async function main() {
   if (thresholdIndex !== -1) {
     const threshold = parseFloat(args[thresholdIndex + 1]);
     if (isNaN(threshold)) {
-      console.error("Invalid threshold value");
+      console.error(`\x1b[31mInvalid threshold value\x1b[0m`);
       process.exit(1);
     }
     SCORE_THRESHOLD = threshold;
@@ -539,8 +532,8 @@ async function main() {
 
   const pattern = args[0];
   if (!pattern) {
-    console.error(`Usage: ${NAME} <directory-pattern>`);
-    console.error("Use --help for more information");
+    console.error(`\x1b[31mUsage: ${NAME} <directory-pattern>\x1b[0m`);
+    console.error(`\x1b[31mUse --help for more information\x1b[0m`);
     process.exit(1);
   }
 
@@ -555,7 +548,7 @@ async function main() {
   const initialMatches = searchUp(currentDir, parts[0]);
 
   if (initialMatches.length === 0) {
-    console.error(`No matching directories found for "${parts[0]}"`);
+    console.error(`\x1b[31mNo matching directories found for "${parts[0]}"\x1b[0m`);
     process.exit(1);
   }
 
@@ -601,7 +594,7 @@ async function main() {
     });
 
   if (allMatches.length === 0) {
-    console.error("No matching directories found");
+    console.error(`\x1b[31mNo matching directories found\x1b[0m`);
     process.exit(1);
   }
 
@@ -613,7 +606,7 @@ async function main() {
     log(`Found ${allMatches.length} matching directories`);
     selectedDir = await selectWithFzf(allMatches);
     if (!selectedDir) {
-      console.error("No directory selected");
+      console.error(`\x1b[31mNo directory selected\x1b[0m`);
 
       process.exit(1);
     }
@@ -626,6 +619,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error("Error:", error);
+  console.error(`\x1b[31mError:\x1b[0m`, error);
   process.exit(1);
 });
